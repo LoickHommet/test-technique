@@ -4,9 +4,12 @@ namespace App\Http\Livewire\Admin;
 
 use App\Models\Order;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Orders extends Component
 {
+    use WithPagination;
+
     public $search = '';
     public $status = '';
     public $dateFrom = '';
@@ -19,7 +22,7 @@ class Orders extends Component
             ->with('customer')
             ->withCount('details')
             ->latest()
-            ->get();
+            ->paginate(20);
 
         $orderCount = $this->filteredOrdersQuery()->count();
 
@@ -107,5 +110,26 @@ class Orders extends Component
             'dateFrom',
             'dateTo',
         ]);
+
+        $this->resetPage();
+    }
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatus()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatingDateTo()
+    {
+        $this->resetPage();
     }
 }
