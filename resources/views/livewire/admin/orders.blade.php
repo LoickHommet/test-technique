@@ -1,76 +1,125 @@
-<div>
-    <h1>Gestion des commandes</h1>
+<div class="orders-page">
 
-    <div>
-        <input
-            type="text"
-            wire:model="search"
-            placeholder="Référence, client ou e-mail">
-
-        <select wire:model="status">
-            <option value="">Tous les statuts</option>
-
-            @foreach (\App\Models\Order::STATUSES as $orderStatus)
-            <option value="{{ $orderStatus }}">
-                {{ ucfirst($orderStatus) }}
-            </option>
-            @endforeach
-        </select>
-
-        <input
-            type="date"
-            wire:model="dateFrom">
-
-        <input
-            type="date"
-            wire:model="dateTo">
-
-        <button type="button" wire:click="resetFilters">
-            Réinitialiser les filtres
-        </button>
+    <div class="orders-header">
+        <h1>Gestion des commandes</h1>
+        <p>Consultez et recherchez les commandes clients.</p>
     </div>
 
-    
+    <div class="filters">
 
-    <table>
-        <thead>
-            <tr>
-                <th>Référence</th>
-                <th>Date</th>
-                <th>Client</th>
-                <th>Nombre d'articles</th>
-                <th>Montant</th>
-                <th>Statut</th>
-            </tr>
-        </thead>
+        <div class="filter-group">
+            <label for="search">Recherche</label>
 
-        <tbody>
-            @foreach ($orders as $order)
-            <tr>
-                <td>{{ $order->reference }}</td>
+            <input
+                id="search"
+                type="text"
+                wire:model="search"
+                placeholder="Référence, client ou e-mail"
+            >
+        </div>
 
-                <td>
-                    {{ $order->created_at->format('d/m/Y') }}
-                </td>
+        <div class="filter-group">
+            <label for="status">Statut</label>
 
-                <td>
-                    {{ $order->customer->firstname }}
-                    {{ $order->customer->lastname }}
-                </td>
+            <select id="status" wire:model="status">
+                <option value="">Tous les statuts</option>
 
-                <td>
-                    {{ $order->details_count }}
-                </td>
+                @foreach (\App\Models\Order::STATUSES as $orderStatus)
+                    <option value="{{ $orderStatus }}">
+                        {{ ucfirst($orderStatus) }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
 
-                <td>
-                    {{ number_format($order->total_amount, 2, ',', ' ') }} €
-                </td>
+        <div class="filter-group">
+            <label for="dateFrom">Date début</label>
 
-                <td>
-                    {{ $order->status }}
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+            <input
+                id="dateFrom"
+                type="date"
+                wire:model="dateFrom"
+            >
+        </div>
+
+        <div class="filter-group">
+            <label for="dateTo">Date fin</label>
+
+            <input
+                id="dateTo"
+                type="date"
+                wire:model="dateTo"
+            >
+        </div>
+
+        <button
+            type="button"
+            class="reset-button"
+            wire:click="resetFilters"
+        >
+            Réinitialiser
+        </button>
+
+    </div>
+
+    <div class="orders-table-container">
+
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Référence</th>
+                    <th>Date</th>
+                    <th>Client</th>
+                    <th>Articles</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @forelse ($orders as $order)
+
+                    <tr>
+                        <td class="order-reference">
+                            {{ $order->reference }}
+                        </td>
+
+                        <td>
+                            {{ $order->created_at->format('d/m/Y') }}
+                        </td>
+
+                        <td>
+                            {{ $order->customer->firstname }}
+                            {{ $order->customer->lastname }}
+                        </td>
+
+                        <td>
+                            {{ $order->details_count }}
+                        </td>
+
+                        <td class="order-amount">
+                            {{ number_format($order->total_amount, 2, ',', ' ') }} €
+                        </td>
+
+                        <td>
+                            <span class="status status-{{ $order->status }}">
+                                {{ ucfirst($order->status) }}
+                            </span>
+                        </td>
+                    </tr>
+
+                @empty
+
+                    <tr>
+                        <td colspan="6">
+                            Aucune commande ne correspond aux critères.
+                        </td>
+                    </tr>
+
+                @endforelse
+            </tbody>
+        </table>
+
+    </div>
+
 </div>
