@@ -14,10 +14,37 @@ class Orders extends Component
 
     public function render()
     {
-        $orders = Order::query()
+        $orders = $this->filteredOrdersQuery()
             ->with('customer')
             ->withCount('details')
+            ->latest()
+            ->get();
 
+        $orderCount = $this->filteredOrdersQuery()->count();
+
+        $revenue = $this->filteredOrdersQuery()
+            ->where('status', '!=', 'cancelled')
+            ->sum('total_amount');
+
+        $nonCancelledOrderCount = $this->filteredOrdersQuery()
+            ->where('status', '!=', 'cancelled')
+            ->count();
+
+        $averageBasket = $nonCancelledOrderCount > 0
+            ? $revenue / $nonCancelledOrderCount
+            : 0;
+
+        return view('livewire.admin.orders', [
+            'orders' => $orders,
+            'orderCount' => $orderCount,
+            'revenue' => $revenue,
+            'averageBasket' => $averageBasket,
+        ]);
+    }
+
+    private function filteredOrdersQuery()
+    {
+        return Order::query()
             ->when($this->search, function ($query) {
                 $search = '%' . $this->search . '%';
 
@@ -30,27 +57,16 @@ class Orders extends Component
                         });
                 });
             })
-
             ->when($this->status, function ($query) {
                 $query->where('status', $this->status);
             })
-
             ->when($this->dateFrom, function ($query) {
                 $query->whereDate('created_at', '>=', $this->dateFrom);
             })
-
             ->when($this->dateTo, function ($query) {
                 $query->whereDate('created_at', '<=', $this->dateTo);
-            })
-
-            ->latest()
-            ->get();
-
-        return view('livewire.admin.orders', [
-            'orders' => $orders,
-        ]);
+            });
     }
-
     public function resetFilters()
     {
         $this->reset([
