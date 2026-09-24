@@ -50,4 +50,14 @@ class Orders extends Component
             'orders' => $orders,
         ]);
     }
+
+    public function resetFilters()
+    {
+        $this->reset([
+            'search',
+            'status',
+            'dateFrom',
+            'dateTo',
+        ]);
+    }
 }
