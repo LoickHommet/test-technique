@@ -5,7 +5,7 @@
         <p>Consultez et recherchez les commandes clients.</p>
     </div>
 
-    
+
 
     <div class="filters">
 
@@ -16,8 +16,7 @@
                 id="search"
                 type="text"
                 wire:model="search"
-                placeholder="Référence, client ou e-mail"
-            >
+                placeholder="Référence, client ou e-mail">
         </div>
 
         <div class="filter-group">
@@ -27,9 +26,9 @@
                 <option value="">Tous les statuts</option>
 
                 @foreach (\App\Models\Order::STATUSES as $orderStatus)
-                    <option value="{{ $orderStatus }}">
-                        {{ ucfirst($orderStatus) }}
-                    </option>
+                <option value="{{ $orderStatus }}">
+                    {{ ucfirst($orderStatus) }}
+                </option>
                 @endforeach
             </select>
         </div>
@@ -40,8 +39,7 @@
             <input
                 id="dateFrom"
                 type="date"
-                wire:model="dateFrom"
-            >
+                wire:model="dateFrom">
         </div>
 
         <div class="filter-group">
@@ -50,15 +48,13 @@
             <input
                 id="dateTo"
                 type="date"
-                wire:model="dateTo"
-            >
+                wire:model="dateTo">
         </div>
 
         <button
             type="button"
             class="reset-button"
-            wire:click="resetFilters"
-        >
+            wire:click="resetFilters">
             Réinitialiser
         </button>
 
@@ -66,31 +62,37 @@
 
     <div class="stats">
 
-    <div class="stat-card">
-        <span class="stat-label">Commandes</span>
+        <div class="stat-card">
+            <span class="stat-label">Commandes</span>
 
-        <strong class="stat-value">
-            {{ number_format($orderCount, 0, ',', ' ') }}
-        </strong>
+            <strong class="stat-value">
+                {{ number_format($orderCount, 0, ',', ' ') }}
+            </strong>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Chiffre d'affaires</span>
+
+            <strong class="stat-value">
+                {{ number_format($revenue, 2, ',', ' ') }} €
+            </strong>
+        </div>
+
+        <div class="stat-card">
+            <span class="stat-label">Panier moyen</span>
+
+            <strong class="stat-value">
+                {{ number_format($averageBasket, 2, ',', ' ') }} €
+            </strong>
+        </div>
+
     </div>
 
-    <div class="stat-card">
-        <span class="stat-label">Chiffre d'affaires</span>
-
-        <strong class="stat-value">
-            {{ number_format($revenue, 2, ',', ' ') }} €
-        </strong>
+    @if (session()->has('success'))
+    <div class="alert-success">
+        {{ session('success') }}
     </div>
-
-    <div class="stat-card">
-        <span class="stat-label">Panier moyen</span>
-
-        <strong class="stat-value">
-            {{ number_format($averageBasket, 2, ',', ' ') }} €
-        </strong>
-    </div>
-
-</div>
+    @endif
 
     <div class="orders-table-container">
 
@@ -103,48 +105,75 @@
                     <th>Articles</th>
                     <th>Montant</th>
                     <th>Statut</th>
+                    <th>Modifier le statut</th>
                 </tr>
             </thead>
 
             <tbody>
                 @forelse ($orders as $order)
 
-                    <tr>
-                        <td class="order-reference">
-                            {{ $order->reference }}
-                        </td>
+                <tr>
+                    <td class="order-reference">
+                        {{ $order->reference }}
+                    </td>
 
-                        <td>
-                            {{ $order->created_at->format('d/m/Y') }}
-                        </td>
+                    <td>
+                        {{ $order->created_at->format('d/m/Y') }}
+                    </td>
 
-                        <td>
-                            {{ $order->customer->firstname }}
-                            {{ $order->customer->lastname }}
-                        </td>
+                    <td>
+                        {{ $order->customer->firstname }}
+                        {{ $order->customer->lastname }}
+                    </td>
 
-                        <td>
-                            {{ $order->details_count }}
-                        </td>
+                    <td>
+                        {{ $order->details_count }}
+                    </td>
 
-                        <td class="order-amount">
-                            {{ number_format($order->total_amount, 2, ',', ' ') }} €
-                        </td>
+                    <td class="order-amount">
+                        {{ number_format($order->total_amount, 2, ',', ' ') }} €
+                    </td>
 
-                        <td>
-                            <span class="status status-{{ $order->status }}">
-                                {{ ucfirst($order->status) }}
-                            </span>
-                        </td>
-                    </tr>
+                    <td>
+
+
+                        <span class="status status-{{ $order->status }}">
+                            {{ ucfirst($order->status) }}
+                        </span>
+
+
+                    </td>
+                    <td>
+                        <div class="status-container">
+                            <div class="status-edit">
+                                <select wire:model="editingStatuses.{{ $order->id }}">
+                                    @foreach (\App\Models\Order::STATUSES as $orderStatus)
+                                    <option value="{{ $orderStatus }}">
+                                        {{ ucfirst($orderStatus) }}
+                                    </option>
+                                    @endforeach
+                                </select>
+
+                                <button
+                                    type="button"
+                                    class="save-status-button"
+                                    wire:click="updateStatus({{ $order->id }})"
+                                    onclick="if (!confirm('Voulez-vous vraiment modifier le statut de cette commande ?')) { event.stopImmediatePropagation(); }">
+                                    Enregistrer
+                                    </button>
+                            </div>
+                        </div>
+                    </td>
+
+                </tr>
 
                 @empty
 
-                    <tr>
-                        <td colspan="6">
-                            Aucune commande ne correspond aux critères.
-                        </td>
-                    </tr>
+                <tr>
+                    <td colspan="6">
+                        Aucune commande ne correspond aux critères.
+                    </td>
+                </tr>
 
                 @endforelse
             </tbody>
