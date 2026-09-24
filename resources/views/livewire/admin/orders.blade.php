@@ -24,7 +24,13 @@
         <input
             type="date"
             wire:model="dateTo">
+
+        <button type="button" wire:click="resetFilters">
+            Réinitialiser les filtres
+        </button>
     </div>
+
+    
 
     <table>
         <thead>
