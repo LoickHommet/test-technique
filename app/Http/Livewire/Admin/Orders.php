@@ -11,6 +11,7 @@ class Orders extends Component
     public $status = '';
     public $dateFrom = '';
     public $dateTo = '';
+    public $editingStatuses = [];
 
     public function render()
     {
@@ -67,6 +68,37 @@ class Orders extends Component
                 $query->whereDate('created_at', '<=', $this->dateTo);
             });
     }
+
+    public function updateStatus($orderId)
+    {
+        $this->validate([
+            'editingStatuses.' . $orderId => [
+                'required',
+                'in:' . implode(',', Order::STATUSES),
+            ],
+        ]);
+
+        $order = Order::findOrFail($orderId);
+
+        $order->update([
+            'status' => $this->editingStatuses[$orderId],
+        ]);
+
+        session()->flash(
+            'success',
+            'Le statut de la commande a été mis à jour.'
+        );
+    }
+
+    public function mount()
+    {
+        Order::select('id', 'status')
+            ->get()
+            ->each(function ($order) {
+                $this->editingStatuses[$order->id] = $order->status;
+            });
+    }
+
     public function resetFilters()
     {
         $this->reset([
