@@ -160,7 +160,7 @@
                                     wire:click="updateStatus({{ $order->id }})"
                                     onclick="if (!confirm('Voulez-vous vraiment modifier le statut de cette commande ?')) { event.stopImmediatePropagation(); }">
                                     Enregistrer
-                                    </button>
+                                </button>
                             </div>
                         </div>
                     </td>
@@ -178,6 +178,9 @@
                 @endforelse
             </tbody>
         </table>
+       <div class="pagination-container">
+    {{ $orders->links() }}
+</div>
 
     </div>
 
