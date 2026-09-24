@@ -24,6 +24,12 @@ class Orders extends Component
             ->latest()
             ->paginate(20);
 
+        foreach ($orders as $order) {
+            if (!array_key_exists($order->id, $this->editingStatuses)) {
+                $this->editingStatuses[$order->id] = $order->status;
+            }
+        }
+
         $orderCount = $this->filteredOrdersQuery()->count();
 
         $revenue = $this->filteredOrdersQuery()
@@ -93,14 +99,6 @@ class Orders extends Component
         );
     }
 
-    public function mount()
-    {
-        Order::select('id', 'status')
-            ->get()
-            ->each(function ($order) {
-                $this->editingStatuses[$order->id] = $order->status;
-            });
-    }
 
     public function resetFilters()
     {
