@@ -8,4 +8,29 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     use HasFactory;
+
+    public const STATUSES = [
+        'pending',
+        'paid',
+        'processing',
+        'shipped',
+        'cancelled',
+    ];
+
+    protected $fillable = [
+        'reference',
+        'customer_id',
+        'status',
+        'total_amount',
+    ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function details()
+    {
+        return $this->hasMany(OrderDetail::class);
+    }
 }
