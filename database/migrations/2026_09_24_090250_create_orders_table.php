@@ -15,6 +15,21 @@ class CreateOrdersTable extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('reference')->unique();
+
+            $table->foreignId('customer_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
+            $table->enum('status', [
+                'pending',
+                'paid',
+                'processing',
+                'shipped',
+                'cancelled',
+            ]);
+
+            $table->decimal('total_amount', 10, 2);
             $table->timestamps();
         });
     }
