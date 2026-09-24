@@ -5,6 +5,8 @@
         <p>Consultez et recherchez les commandes clients.</p>
     </div>
 
+    
+
     <div class="filters">
 
         <div class="filter-group">
@@ -61,6 +63,34 @@
         </button>
 
     </div>
+
+    <div class="stats">
+
+    <div class="stat-card">
+        <span class="stat-label">Commandes</span>
+
+        <strong class="stat-value">
+            {{ number_format($orderCount, 0, ',', ' ') }}
+        </strong>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Chiffre d'affaires</span>
+
+        <strong class="stat-value">
+            {{ number_format($revenue, 2, ',', ' ') }} €
+        </strong>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-label">Panier moyen</span>
+
+        <strong class="stat-value">
+            {{ number_format($averageBasket, 2, ',', ' ') }} €
+        </strong>
+    </div>
+
+</div>
 
     <div class="orders-table-container">
 
