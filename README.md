@@ -1,64 +1,238 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# Test technique — Gestion des commandes
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application réalisée dans le cadre du test technique **Développeur Full Stack PHP / Laravel / Livewire**.
 
-## About Laravel
+L'objectif est de proposer une interface back-office permettant au service client de consulter, rechercher et gérer les commandes, tout en affichant quelques indicateurs commerciaux.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Environnement technique
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+* PHP 7.4
+* Laravel 8
+* Livewire 2
+* MySQL
+* Blade
+* HTML / CSS
+* JavaScript
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Installation
 
-## Learning Laravel
+Cloner le projet puis installer les dépendances :
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```bash
+composer install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Créer le fichier d'environnement :
 
-## Laravel Sponsors
+```bash
+cp .env.example .env
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+Générer la clé de l'application :
 
-### Premium Partners
+```bash
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+Configurer la connexion MySQL dans `.env` :
 
-## Contributing
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=test_technique
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Les valeurs doivent être adaptées à l'environnement local utilisé.
 
-## Code of Conduct
+Créer ensuite la structure de la base et les données de démonstration :
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+php artisan migrate:fresh --seed
+```
 
-## Security Vulnerabilities
+Les seeders génèrent environ :
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+* 100 clients
+* 150 produits
+* 2 000 commandes
+* 5 000 lignes de commande
 
-## License
+Démarrer ensuite l'application :
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+php artisan serve
+```
+
+La gestion des commandes est accessible depuis :
+
+```text
+/admin/orders
+```
+
+## Fonctionnalités réalisées
+
+### Liste des commandes
+
+La page affiche pour chaque commande :
+
+* la référence ;
+* la date ;
+* le client ;
+* le nombre de lignes de commande ;
+* le montant ;
+* le statut.
+
+Les relations Eloquent sont chargées avec eager loading afin notamment d'éviter le problème N+1 lors de l'affichage des clients.
+
+### Recherche et filtres
+
+La liste peut être filtrée dynamiquement avec Livewire sans rechargement complet de la page.
+
+La recherche porte sur :
+
+* la référence de commande ;
+* le prénom du client ;
+* le nom du client ;
+* l'adresse e-mail du client.
+
+Les filtres disponibles sont :
+
+* statut ;
+* date de début ;
+* date de fin.
+
+Les différents filtres sont combinables et peuvent être réinitialisés avec le bouton prévu à cet effet.
+
+### Indicateurs commerciaux
+
+Les indicateurs sont recalculés automatiquement selon les filtres actifs :
+
+* nombre de commandes ;
+* chiffre d'affaires ;
+* panier moyen.
+
+Les commandes ayant le statut `cancelled` sont exclues du chiffre d'affaires et du calcul du panier moyen.
+
+Si aucune commande non annulée ne correspond aux filtres, le panier moyen est affiché à `0 €`.
+
+La logique des filtres est centralisée dans une même méthode afin de garantir que la liste et les indicateurs utilisent les mêmes critères.
+
+### Modification du statut
+
+Le statut d'une commande peut être modifié directement depuis la liste.
+
+Les statuts autorisés sont :
+
+* `pending`
+* `paid`
+* `processing`
+* `shipped`
+* `cancelled`
+
+La nouvelle valeur est validée côté serveur avant la mise à jour de la commande.
+
+Une confirmation est demandée à l'utilisateur avant la modification et un message confirme ensuite la réussite de l'opération.
+
+Après la modification, Livewire actualise automatiquement la liste et les indicateurs commerciaux.
+
+### Pagination
+
+Les commandes sont paginées afin de ne pas charger l'ensemble des commandes en mémoire.
+
+20 commandes sont affichées par page.
+
+Lorsqu'un filtre est modifié, la pagination revient automatiquement à la première page.
+
+## Tests
+
+Un test fonctionnel Livewire a été ajouté pour vérifier la modification du statut d'une commande.
+
+Le test simule la sélection d'un nouveau statut depuis le composant puis vérifie que la modification a bien été enregistrée en base de données.
+
+Les tests peuvent être exécutés avec :
+
+```bash
+php artisan test
+```
+
+
+### Requête de filtrage centralisée
+
+La construction de la requête filtrée est centralisée dans le composant Livewire.
+
+Ce choix évite de dupliquer les conditions entre la liste des commandes et les indicateurs commerciaux.
+
+### Validation serveur
+
+La modification du statut est systématiquement validée côté serveur. Les valeurs provenant de l'interface ne sont donc pas considérées comme fiables sans validation.
+
+### Interface
+
+L'interface a volontairement été gardée simple et lisible avec du CSS personnalisé, sans ajouter de framework CSS supplémentaire.
+
+## Limites et améliorations possibles
+
+Compte tenu du temps imparti, certaines améliorations pourraient être apportées avec davantage de temps :
+
+* ajouter davantage de tests automatisés sur les filtres et les indicateurs ;
+* améliorer la gestion et l'affichage des erreurs de validation ;
+* ajouter des tests spécifiques sur l'exclusion des commandes annulées du chiffre d'affaires ;
+* améliorer davantage l'accessibilité et le responsive de l'interface ;
+* ajouter une notification au client lors d'un changement important du statut de sa commande ;
+* utiliser une file d'attente pour les traitements asynchrones tels que l'envoi d'e-mails ;
+* ajouter davantage d'optimisations et d'index SQL si le volume de commandes devait fortement augmenter.
+
+## Problèmes de performances éventuels
+
+Plusieurs points seraient à surveiller si le volume de données augmentait fortement.
+
+Chargement des relations
+
+La liste utilise l'eager loading avec :
+
+->with('customer')
+
+Ce choix permet d'éviter le problème N+1 lors de l'affichage des informations du client pour chaque commande.
+
+L'eager loading reste néanmoins à utiliser de manière raisonnée : charger beaucoup de relations ou un grand nombre d'enregistrements en une seule fois peut augmenter la consommation mémoire et le temps de traitement.
+
+Dans cette application, la pagination à 20 commandes limite ce problème puisque seules les relations nécessaires aux commandes de la page courante sont chargées.
+
+## Requêtes des indicateurs
+
+À chaque modification des filtres, plusieurs requêtes sont exécutées afin de calculer :
+
+la liste des commandes ;
+le nombre de commandes ;
+le chiffre d'affaires ;
+le nombre de commandes non annulées utilisé pour calculer le panier moyen.
+
+Cela reste acceptable pour le volume de données du test, mais sur une base beaucoup plus importante, il serait intéressant d'analyser ces requêtes et leur temps d'exécution.
+
+Des index adaptés pourraient notamment être étudiés sur les colonnes fréquemment utilisées pour les filtres et les recherches.
+
+La recherche avec des expressions de type :
+
+LIKE '%recherche%'
+
+peut également devenir coûteuse sur un volume important de données. Pour une application à plus grande échelle, une solution de recherche plus adaptée pourrait être envisagée.
+
+## État du projet
+
+Les fonctionnalités principales demandées sont réalisées :
+
+* liste des commandes ;
+* recherche multi-critères ;
+* filtres combinables ;
+* filtres Livewire sans rechargement complet ;
+* réinitialisation des filtres ;
+* indicateurs commerciaux dynamiques ;
+* exclusion des commandes annulées du chiffre d'affaires ;
+* modification et validation du statut ;
+* confirmation avant modification ;
+* pagination ;
+* interface responsive simple ;
+* test automatisé ciblé.
